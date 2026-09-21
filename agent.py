@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 from google import genai
 from openai import OpenAI
+import streamlit as st
 
 load_dotenv()
 
@@ -34,8 +35,9 @@ AVAILABLE_TOOLS = {
 
 class AITutorAutonomousAgent:
     def __init__(self):
-        self.gemini_key = os.getenv("GEMINI_API_KEY")
-        self.openrouter_key = os.getenv("OPENROUTER_API_KEY")
+        # Read from Streamlit Secrets (Cloud) first, fallback to Environment Variables (Local)
+        self.gemini_key = getattr(st, "secrets", {}).get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+        self.openrouter_key = getattr(st, "secrets", {}).get("OPENROUTER_API_KEY", os.getenv("OPENROUTER_API_KEY"))
         
         self.gemini_client = genai.Client(api_key=self.gemini_key) if self.gemini_key else None
         self.openrouter_client = OpenAI(
